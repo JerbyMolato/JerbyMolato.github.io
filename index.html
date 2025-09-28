@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Jerby Molato Portfolio</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
   <style>
@@ -13,7 +13,6 @@
       --card-bg: rgba(0, 0, 0, 0.7);
       --shadow: rgba(0,255,255,0.2);
     }
-
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: 'Poppins', sans-serif;
@@ -22,9 +21,19 @@
       line-height: 1.6;
       scroll-behavior: smooth;
     }
-
     a { text-decoration: none; color: var(--primary); transition: 0.3s; }
     a:hover { color: #fff; }
+
+    /* Fade Scroll Animation */
+    .fade {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: all 0.8s ease-in-out;
+    }
+    .fade.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
 
     /* Header */
     header {
@@ -40,16 +49,60 @@
     .hero {
       display: flex; flex-direction: column; align-items: center; justify-content: center;
       text-align: center; padding: 100px 20px; gap: 20px;
-      animation: fadeIn 1.5s ease-in-out;
+      position: relative;
     }
     .hero h1 { font-size: 2.5rem; font-weight: 700; color: var(--primary); }
     .hero p { font-size: 1.1rem; color: #ccc; max-width: 600px; }
-    .hero img { width: 180px; border-radius: 50%; margin-top: 20px; border: 3px solid var(--primary); }
+
+    .hero img {
+      width: 180px;
+      border-radius: 50%;
+      margin-top: 20px;
+      border: 3px solid var(--primary);
+      position: relative;
+      z-index: 2;
+      overflow: hidden;
+      animation: floatImg 4s ease-in-out infinite;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .hero img:hover {
+      transform: scale(1.05) rotate(-1deg);
+      box-shadow: 0 0 20px var(--primary), 0 0 40px var(--primary);
+    }
+
+    /* Neon Halo / Glow behind image */
+    .hero img::before {
+      content: '';
+      position: absolute;
+      width: 220px;
+      height: 220px;
+      border-radius: 50%;
+      top: -20px;
+      left: -20px;
+      pointer-events: none;
+      background: radial-gradient(circle, rgba(0,240,255,0.3) 0%, transparent 60%);
+      animation: haloPulse 3s infinite ease-in-out;
+      z-index: -1;
+    }
+
+    /* Laser scan bar effect */
+    .hero img::after {
+      content: '';
+      position: absolute;
+      width: 100%;
+      height: 4px;
+      background: linear-gradient(90deg, transparent, rgba(0, 240, 255, 0.6), transparent);
+      top: 0;
+      left: 0;
+      transform: translateY(-100%);
+      pointer-events: none;
+      animation: scanBar 3s infinite ease-in-out;
+      z-index: 3;
+    }
 
     /* Sections */
     section { padding: 80px 20px; max-width: 1100px; margin: auto; }
     h2 { text-align: center; font-size: 2rem; margin-bottom: 40px; color: var(--primary); }
-
     .cards {
       display: flex; flex-wrap: wrap; gap: 20px; justify-content: center;
     }
@@ -64,32 +117,111 @@
       box-shadow: 0 0 20px var(--primary), 0 0 40px var(--primary), 0 0 60px var(--primary);
     }
 
-    /* Neon hover effect on project images */
-    .projects .card img {
-      width: 100%; display: block; border-radius: 8px;
-      transition: transform 0.3s, box-shadow 0.3s;
+    /* Flip Card Styles */
+    .flip-card {
+      background: transparent;
+      width: 350px;
+      height: 300px;
+      perspective: 1000px;
     }
-    .projects .card:hover img {
+    .flip-card-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transition: transform 0.8s;
+      transform-style: preserve-3d;
+    }
+    .flip-card:hover .flip-card-inner {
+      transform: rotateY(180deg);
+    }
+    .flip-card-front,
+    .flip-card-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px var(--shadow);
+    }
+    .flip-card-front {
+      background: var(--card-bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+    }
+    .flip-card-front h4 {
+      color: var(--primary);
+      font-size: 1.3rem;
+    }
+    .flip-card-back {
+      background: #111;
+      transform: rotateY(180deg);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 10px;
+      padding: 10px;
+      overflow-y: auto;
+    }
+    .flip-card-back img {
+      width: 90%;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: transform 0.3s;
+    }
+    .flip-card-back img:hover {
       transform: scale(1.05);
-      box-shadow: 0 0 20px var(--primary), 0 0 40px var(--primary);
     }
 
-    /* Animations */
-    @keyframes fadeIn {
-      0% { opacity: 0; transform: translateY(20px); }
-      100% { opacity: 1; transform: translateY(0); }
+    /* Modal Styles */
+    .modal {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+    .modal img {
+      max-width: 90%;
+      max-height: 90%;
+      border-radius: 12px;
+      box-shadow: 0 0 20px var(--primary);
+    }
+
+    /* Keyframes */
+    @keyframes floatImg {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+    @keyframes haloPulse {
+      0%, 100% { transform: scale(1); opacity: 0.7; }
+      50% { transform: scale(1.1); opacity: 0.4; }
+    }
+    @keyframes scanBar {
+      0% { transform: translateY(-100%); opacity: 0; }
+      10% { opacity: 1; }
+      50% { transform: translateY(100%); opacity: 1; }
+      90% { opacity: 1; }
+      100% { transform: translateY(200%); opacity: 0; }
     }
 
     @media(max-width:768px){
       header { flex-direction: column; gap: 10px; }
       .hero { padding: 60px 20px; }
+      .flip-card { width: 100%; height: 280px; }
     }
   </style>
 </head>
 <body>
 
   <!-- Header -->
-  <header>
+  <header class="fade">
     <div class="logo">Jerby Molato</div>
     <nav>
       <a href="#home">Home</a>
@@ -100,25 +232,25 @@
   </header>
 
   <!-- Hero -->
-  <section class="hero" id="home">
+  <section class="hero fade" id="home">
     <img src="1000066322.jpg" alt="Jerby Molato Photo">
     <h1>Hi, I'm Jerby S. Molato</h1>
     <p>3rd-year BSIT student at Mary The Queen College Pampanga Inc. I create clean and functional websites using HTML, CSS, and JS.</p>
   </section>
 
   <!-- About -->
-  <section class="about" id="about">
+  <section class="about fade" id="about">
     <h2>About Me</h2>
     <div class="cards">
-      <div class="card">
+      <div class="card fade">
         <h4>Education</h4>
         <p>Currently studying at Mary The Queen College Pampanga Inc.</p>
       </div>
-      <div class="card">
+      <div class="card fade">
         <h4>Skills</h4>
         <p>HTML, CSS, JavaScript, Responsive Design, Animations</p>
       </div>
-      <div class="card">
+      <div class="card fade">
         <h4>Goal</h4>
         <p>To build functional and visually clean websites while learning new tech.</p>
       </div>
@@ -126,22 +258,22 @@
   </section>
 
   <!-- Services -->
-  <section class="services" id="services">
+  <section class="services fade" id="services">
     <h2>Services</h2>
     <div class="cards">
-      <div class="card">
+      <div class="card fade">
         <h4>Web Design</h4>
         <p>Responsive and modern UI/UX design for websites and apps.</p>
       </div>
-      <div class="card">
+      <div class="card fade">
         <h4>Web Development</h4>
         <p>Clean HTML, CSS, JS code for functional websites.</p>
       </div>
-      <div class="card">
+      <div class="card fade">
         <h4>Portfolio Projects</h4>
         <p>Showcase your work with attractive and interactive layouts.</p>
       </div>
-      <div class="card">
+      <div class="card fade">
         <h4>Animations</h4>
         <p>Add smooth transitions, hover effects, and micro-animations.</p>
       </div>
@@ -149,103 +281,123 @@
   </section>
 
   <!-- Projects -->
-  <section class="projects" id="projects">
-  <h2>My Projects</h2>
-  <div class="cards">
-    <!-- Project 1 -->
-    <div class="card">
-      <img src="Screenshot (98).png" alt="BundleS 1">
-      <h4 style="padding:12px;">Bundle 1</h4>
+  <section class="projects fade" id="projects">
+    <h2>Bundle Samples</h2>
+    <div class="cards">
+      <div class="flip-card fade">
+        <div class="flip-card-inner">
+          <div class="flip-card-front"><h4>Bundle 1</h4></div>
+          <div class="flip-card-back"><img src="Screenshot (98).png" alt="Bundle 1"></div>
+        </div>
+      </div>
+      <div class="flip-card fade">
+        <div class="flip-card-inner">
+          <div class="flip-card-front"><h4>Bundle 2</h4></div>
+          <div class="flip-card-back">
+            <img src="Screenshot (99).png"><img src="Screenshot (100).png"><img src="Screenshot (101).png">
+          </div>
+        </div>
+      </div>
+      <div class="flip-card fade">
+        <div class="flip-card-inner">
+          <div class="flip-card-front"><h4>Bundle 3</h4></div>
+          <div class="flip-card-back">
+            <img src="Screenshot (102).png"><img src="Screenshot (103).png"><img src="Screenshot (104).png"><img src="Screenshot (105).png"><img src="Screenshot (106).png">
+          </div>
+        </div>
+      </div>
+      <div class="flip-card fade">
+        <div class="flip-card-inner">
+          <div class="flip-card-front"><h4>Custom Bundle 3</h4></div>
+          <div class="flip-card-back">
+            <img src="Screenshot (107).png"><img src="Screenshot (108).png"><img src="Screenshot (110).png"><img src="Screenshot (111).png">
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+ <!-- Pricing -->
+  <section class="pricing" id="pricing">
+    <h2>📦 Website Package Deals </h2>
+    <div class="cards">
+      <div class="card">
+        <h4>Starter Package – ₱5,000</h4>
+        <ul style="text-align:left; padding-left:15px;">
+          <li>1 Landing Page (template-based + light customization)</li>
+          <li>Mobile Responsive (desktop, tablet, phone)</li>
+          <li>Hosting Setup (GitHub Pages / Netlify free hosting)</li>
+          <li>1 Round of Revisions</li>
+          <li>Delivery in 5–7 working days</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>Growth Package – ₱8,500</h4>
+        <ul style="text-align:left; padding-left:15px;">
+          <li>Up to 3 Pages (Home, About, Contact)</li>
+          <li>Semi-Custom Design (layout + color scheme matched to brand)</li>
+          <li>Mobile Responsive (desktop, tablet, phone)</li>
+          <li>Hosting Setup (GitHub Pages / Netlify free hosting)</li>
+          <li>Social Media Integration (icons + embedded links/feeds)</li>
+          <li>2 Rounds of Revisions</li>
+          <li>Delivery in 7–10 working days</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>Business Package – ₱12,000</h4>
+        <ul style="text-align:left; padding-left:15px;">
+          <li>Up to 5 Pages (Home, About, Services, Blog, Contact)</li>
+          <li>Custom Branded Design (colors, fonts, layout tailored to brand)</li>
+          <li>Mobile Responsive (desktop, tablet, phone)</li>
+          <li>Hosting Setup (GitHub Pages / Netlify free hosting)</li>
+          <li>Social Media Integration (feeds, share buttons, messenger link)</li>
+          <li>3 Rounds of Revisions</li>
+          <li>Delivery in 10–14 working days</li>
+        </ul>
+      </div>
     </div>
 
-    <!-- Bundle 2 -->
-    <div class="card">
-      <img src="Screenshot (99).png" alt="Bundle 2">
-      <img src="Screenshot (100).png" alt="Bundle 2">
-      <img src="Screenshot (101).png" alt="Bundle 2">
-      <h4 style="padding:12px;">Bundle 2</h4>
+    <h3 style="text-align:center; margin-top:40px;">✅ Add-ons</h3>
+    <div class="cards">
+      <div class="card"><p>Extra Page – ₱1,500/page</p></div>
+      <div class="card"><p>Extra Revisions – ₱800/round</p></div>
+      <div class="card"><p>Maintenance & Updates – ₱2,000/month</p></div>
+      <div class="card"><p>Custom Animations & Effects (scroll, fade-in, hover) – ₱1,500</p></div>
+      <div class="card"><p>Photo Gallery / Portfolio Section – ₱2,000</p></div>
+      <div class="card"><p>Custom Design Upgrade (unique layout & branding beyond templates) – ₱3,000</p></div>
     </div>
-
-    <!-- Bundle 3 -->
-    <div class="card">
-      <img src="Screenshot (102).png" alt="Bundle 3">
-      <img src="Screenshot (103).png" alt="Bundle 3">
-      <img src="Screenshot (104).png" alt="Bundle 3">
-      <img src="Screenshot (105).png" alt="Bundle 3">
-      <img src="Screenshot (106).png" alt="Bundle 3">
-      <h4 style="padding:12px;">Bundle 3</h4>
-    </div>
-  </div>
- <!-- Bundle 2 -->
-    <div class="card">
-      <img src="Screenshot (107).png" alt="Bundle 4">
-      <img src="Screenshot (108).png" alt="Bundle 4">
-      <img src="Screenshot (110).png" alt="Bundle 4">
-            <img src="Screenshot (111).png" alt="Bundle 4">
-
-      <h4 style="padding:12px;">Custom Bundle3</h4>
-    </div>
-
-
-</section>
-<!-- Pricing / Website Package Deals -->S
-<section class="pricing" id="pricing">
-  <h2>📦 Website Package Deals </h2>S
-  
-  <div class="cards">
-    <div class="card">
-      <h4>Starter Package – ₱5,000</h4>
-      <ul style="text-align:left; padding-left:15px;">
-        <li>1 Landing Page (template-based + light customization)</li>
-        <li>Mobile Responsive (desktop, tablet, phone)</li>
-        <li>Hosting Setup (GitHub Pages / Netlify free hosting)</li>
-        <li>1 Round of Revisions</li>
-        <li>Delivery in 5–7 working days</li>
-      </ul>
-    </div>
-
-    <div class="card">
-      <h4>Growth Package – ₱8,500</h4>
-      <ul style="text-align:left; padding-left:15px;">
-        <li>Up to 3 Pages (Home, About, Contact)</li>
-        <li>Semi-Custom Design (layout + color scheme matched to brand)</li>
-        <li>Mobile Responsive (desktop, tablet, phone)</li>
-        <li>Hosting Setup (GitHub Pages / Netlify free hosting)</li>
-        <li>Social Media Integration (icons + embedded links/feeds)</li>
-        <li>2 Rounds of Revisions</li>
-        <li>Delivery in 7–10 working days</li>
-      </ul>
-    </div>
-
-    <div class="card">
-      <h4>Business Package – ₱12,000</h4>
-      <ul style="text-align:left; padding-left:15px;">
-        <li>Up to 5 Pages (Home, About, Services, Blog, Contact)</li>
-        <li>Custom Branded Design (colors, fonts, layout tailored to brand)</li>
-        <li>Mobile Responsive (desktop, tablet, phone)</li>
-        <li>Hosting Setup (GitHub Pages / Netlify free hosting)</li>
-        <li>Social Media Integration (feeds, share buttons, messenger link)</li>
-        <li>3 Rounds of Revisions</li>
-        <li>Delivery in 10–14 working days</li>
-      </ul>
-    </div>
-  </div>
-
-  <h3 style="text-align:center; margin-top:40px;">✅ Add-ons</h3>
-  <div class="cards">
-    <div class="card"><p>Extra Page – ₱1,500/page</p></div>
-    <div class="card"><p>Extra Revisions – ₱800/round</p></div>
-    <div class="card"><p>Maintenance & Updates – ₱2,000/month</p></div>
-    <div class="card"><p>Custom Animations & Effects (scroll, fade-in, hover) – ₱1,500</p></div>
-    <div class="card"><p>Photo Gallery / Portfolio Section – ₱2,000</p></div>
-    <div class="card"><p>Custom Design Upgrade (unique layout & branding beyond templates) – ₱3,000</p></div>
-  </div>
-</section>
+  </section>
 
   <!-- Footer -->
-  <footer>
+  <footer class="fade">
     <p>© 2025 Jerby Molato • Built by a 3rd-year BSIT student</p>
   </footer>
 
+  <!-- JS for fade-in/out + fullscreen image modal -->
+  <script>
+    // Fade in/out on scroll
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('show');
+        } else {
+          entry.target.classList.remove('show'); // fade-out when leaving
+        }
+      });
+    }, { threshold: 0.2 });
+
+    document.querySelectorAll('.fade').forEach(el => observer.observe(el));
+
+    // Fullscreen image modal
+    document.querySelectorAll('.flip-card-back img').forEach(img => {
+      img.addEventListener('click', () => {
+        const modal = document.createElement('div');
+        modal.classList.add('modal');
+        modal.innerHTML = `<img src="${img.src}" alt="screenshot">`;
+        modal.onclick = () => modal.remove();
+        document.body.appendChild(modal);
+      });
+    });
+  </script>
 </body>
 </html>
